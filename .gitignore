@@ -14,8 +14,9 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+backend/lib/
+backend/lib64/
+!frontend/lib/
 parts/
 sdist/
 var/
@@ -216,3 +217,21 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Flutter / Dart
+frontend/.dart_tool/
+frontend/.flutter-plugins
+frontend/.flutter-plugins-dependencies
+frontend/.packages
+frontend/.pub-cache/
+frontend/.pub/
+frontend/build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+*.ephemeral/
+.idea/
+*.iml
