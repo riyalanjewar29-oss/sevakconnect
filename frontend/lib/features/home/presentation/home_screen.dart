@@ -8,6 +8,7 @@ import '../../../core/widgets/primary_button.dart';
 import '../../../core/widgets/secondary_button.dart';
 import '../../auth/domain/models/user_session.dart';
 import '../../common/presentation/feature_placeholder_screen.dart';
+import '../../../core/network/api_client.dart';
 
 /// SevakConnect Main Dashboard / Home Screen
 /// Built strictly following the reference screenshot and DESIGN.md tokens.
@@ -21,6 +22,22 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   bool _isOnline = true;
   int _selectedNavIndex = 0;
+  BackendHealthResult? _backendHealth;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkBackendHealth();
+  }
+
+  Future<void> _checkBackendHealth() async {
+    final result = await ApiClient.instance.checkHealth();
+    if (mounted) {
+      setState(() {
+        _backendHealth = result;
+      });
+    }
+  }
 
   void _toggleNetworkState() {
     setState(() {
@@ -147,6 +164,58 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
         actions: [
+          // Developer/Test Backend Health Indicator
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12.0),
+            child: InkWell(
+              onTap: _checkBackendHealth,
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: (_backendHealth?.isConnected ?? false)
+                      ? const Color(0xFFE8F5E9)
+                      : const Color(0xFFFFEBEE),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: (_backendHealth?.isConnected ?? false)
+                        ? const Color(0xFF81C784)
+                        : const Color(0xFFE57373),
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      (_backendHealth?.isConnected ?? false)
+                          ? Icons.check_circle_rounded
+                          : Icons.cancel_rounded,
+                      size: 13,
+                      color: (_backendHealth?.isConnected ?? false)
+                          ? const Color(0xFF2E7D32)
+                          : const Color(0xFFC62828),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      (_backendHealth?.isConnected ?? false)
+                          ? 'CONNECTED ✓'
+                          : 'NOT CONNECTED ✕',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.3,
+                        color: (_backendHealth?.isConnected ?? false)
+                            ? const Color(0xFF2E7D32)
+                            : const Color(0xFFC62828),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 4),
           // Right: Connectivity / offline icon
           IconButton(
             icon: Icon(
