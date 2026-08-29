@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="SevakConnect - High-Contrast Operations & Police Dashboard for Pandharpur Wari Pilgrimage">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <link rel="icon" type="image/png" href="sevak_logo.png"/>
+  <link rel="apple-touch-icon" href="sevak_logo.png">
+  
+  <title>SevakConnect — Operations & Police Command Dashboard</title>
+  
+  <!-- Inter Google Font Preload -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      background-color: #fcf9f8;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: 'Inter', sans-serif;
+      user-select: none;
+    }
+    #loading-indicator {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      width: 100vw;
+      background-color: #fcf9f8;
+      color: #1b1c1c;
+    }
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid #eae7e7;
+      border-top: 4px solid #3f6b4a;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #26365c;
+      margin-bottom: 6px;
+    }
+    .subtitle {
+      font-size: 14px;
+      color: #554336;
+    }
+  </style>
+</head>
+<body>
+  <div id="loading-indicator">
+    <div class="spinner"></div>
+    <div class="title">SevakConnect — Pandharpur Wari</div>
+    <div class="subtitle">Connecting to Command & Police Operations...</div>
+  </div>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>

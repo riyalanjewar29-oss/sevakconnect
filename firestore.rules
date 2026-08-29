@@ -1,0 +1,186 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------------------------------------------------------
+    // Helper Functions
+    // ---------------------------------------------------------
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function getUserRole() {
+      return isAuthenticated() && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+          ? getUserData().role
+          : null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && getUserRole() == 'admin';
+    }
+
+    function isPolice() {
+      return isAuthenticated() && getUserRole() == 'police';
+    }
+
+    function isVolunteer() {
+      return isAuthenticated() && getUserRole() == 'volunteer';
+    }
+
+    function isAuthorizedStaff() {
+      return isAdmin() || isPolice() || isVolunteer();
+    }
+
+    // ---------------------------------------------------------
+    // Collection: users
+    // ---------------------------------------------------------
+    match /users/{userId} {
+      // Admins and Police can read user profiles.
+      // Volunteers and users can read their own profile.
+      allow read: if isAdmin() || isPolice() || (isAuthenticated() && request.auth.uid == userId);
+
+      // Admins can create any user profile.
+      // Authenticated users can create their own profile during registration.
+      allow create: if isAdmin() || (
+        isAuthenticated() &&
+        request.auth.uid == userId &&
+        request.resource.data.uid == userId &&
+        request.resource.data.role in ['volunteer', 'police', 'admin']
+      );
+
+      // Admins have full update rights.
+      // Non-admins can only update their own profile and CANNOT change role, uid, or createdAt.
+      allow update: if isAdmin() || (
+        isAuthenticated() &&
+        request.auth.uid == userId &&
+        request.resource.data.uid == resource.data.uid &&
+        request.resource.data.role == resource.data.role &&
+        request.resource.data.createdAt == resource.data.createdAt &&
+        (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'uid', 'createdAt']))
+      );
+
+      // Only admins can delete user profiles.
+      allow delete: if isAdmin();
+    }
+
+    // ---------------------------------------------------------
+    // Collection: emergencies
+    // ---------------------------------------------------------
+    match /emergencies/{emergencyId} {
+      // Authorized staff (Admin, Police, Volunteer) can read emergencies.
+      allow read: if isAuthorizedStaff();
+
+      // Authorized staff can create emergency reports.
+      allow create: if isAuthorizedStaff() &&
+        request.resource.data.id is string &&
+        request.resource.data.type is string &&
+        request.resource.data.severity in ['low', 'medium', 'high', 'critical'] &&
+        request.resource.data.status in ['open', 'in_progress', 'resolved'] &&
+        request.resource.data.createdAt is timestamp;
+
+      // Admin has full update access.
+      // Police and Volunteers can update status/operational fields without changing immutable identity fields.
+      allow update: if isAdmin() || (
+        (isPolice() || isVolunteer()) &&
+        request.resource.data.id == resource.data.id &&
+        request.resource.data.createdAt == resource.data.createdAt &&
+        request.resource.data.reportedBy == resource.data.reportedBy &&
+        request.resource.data.status in ['open', 'in_progress', 'resolved']
+      );
+
+      // Only admins can delete emergency records.
+      allow delete: if isAdmin();
+    }
+
+    // ---------------------------------------------------------
+    // Collection: crowd_reports
+    // ---------------------------------------------------------
+    match /crowd_reports/{reportId} {
+      // Authorized staff can read crowd reports.
+      allow read: if isAuthorizedStaff();
+
+      // Authorized staff can submit crowd condition reports.
+      allow create: if isAuthorizedStaff() &&
+        request.resource.data.id is string &&
+        request.resource.data.zoneId is string &&
+        request.resource.data.crowdLevel in ['normal', 'moderate', 'high', 'critical'] &&
+        request.resource.data.createdAt is timestamp;
+
+      // Admins and Police can update crowd reports.
+      allow update: if isAdmin() || (
+        isPolice() &&
+        request.resource.data.id == resource.data.id &&
+        request.resource.data.createdAt == resource.data.createdAt
+      );
+
+      // Only admins can delete crowd reports.
+      allow delete: if isAdmin();
+    }
+
+    // ---------------------------------------------------------
+    // Collection: river_zones
+    // ---------------------------------------------------------
+    match /river_zones/{zoneId} {
+      // Authorized staff can read river zones.
+      allow read: if isAuthorizedStaff();
+
+      // Admins can create river zones.
+      allow create: if isAdmin();
+
+      // Admins have full update rights.
+      // Police can update operational fields (densityLevel, restrictedEntry, restrictedAt, restrictedBy, headcount, lastUpdate).
+      allow update: if isAdmin() || (
+        isPolice() &&
+        request.resource.data.id == resource.data.id &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'density', 'densityLevel', 'restrictedEntry', 'restrictedAt',
+          'restrictedBy', 'currentHeadcount', 'lastUpdate', 'updatedAt',
+          'safetyWarning', 'waterFlowSpeedKmh'
+        ])
+      );
+
+      // Only admins can delete river zones.
+      allow delete: if isAdmin();
+    }
+
+    // ---------------------------------------------------------
+    // Collection: lost_found_cases
+    // ---------------------------------------------------------
+    match /lost_found_cases/{caseId} {
+      // Authorized staff can read lost & found cases.
+      allow read: if isAuthorizedStaff();
+
+      // Authorized staff can create lost & found cases.
+      allow create: if isAuthorizedStaff() &&
+        request.resource.data.id is string &&
+        request.resource.data.type is string &&
+        request.resource.data.status in ['open', 'investigating', 'resolved'] &&
+        request.resource.data.createdAt is timestamp;
+
+      // Admins and Police can update cases (investigation status, description, location).
+      // Volunteers can update status if active.
+      allow update: if isAdmin() || (
+        (isPolice() || isVolunteer()) &&
+        request.resource.data.id == resource.data.id &&
+        request.resource.data.createdAt == resource.data.createdAt &&
+        request.resource.data.status in ['open', 'investigating', 'resolved']
+      );
+
+      // Only admins can delete lost & found cases.
+      allow delete: if isAdmin();
+    }
+
+    // ---------------------------------------------------------
+    // Default Deny
+    // ---------------------------------------------------------
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

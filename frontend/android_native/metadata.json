@@ -1,0 +1,7 @@
+{
+  "name": "SevakConnect",
+  "description": "Connected volunteers, safer Wari. Coordination platform for pilgrimage crowd density, emergency SOS, camp supplies, missing persons, and offline-first sync.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
