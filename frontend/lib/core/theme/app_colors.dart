@@ -22,15 +22,28 @@ abstract class AppColors {
   // 4-Tier Functional Status System (DESIGN.md)
   static const Color statusNormal = Color(0xFF2E7D32); // Normal Green
   static const Color statusNormalBg = Color(0xFFE8F5E9);
+  static const Color statusNormalContainer = Color(0xFFE8F5E9);
+  static const Color onStatusNormal = Color(0xFF2E7D32);
   
   static const Color statusModerate = Color(0xFFED6C02); // Moderate Amber
   static const Color statusModerateBg = Color(0xFFFFF3E0);
+  static const Color statusModerateContainer = Color(0xFFFFF3E0);
+  static const Color onStatusModerate = Color(0xFFED6C02);
   
   static const Color statusHigh = Color(0xFFD32F2F); // High Alert Red
   static const Color statusHighBg = Color(0xFFFFEBEE);
+  static const Color statusHighContainer = Color(0xFFFFEBEE);
+  static const Color onStatusHigh = Color(0xFFD32F2F);
   
   static const Color statusCritical = Color(0xFFB71C1C); // Emergency Deep Red
   static const Color statusCriticalBg = Color(0xFFFFEBEE);
+  static const Color statusCriticalContainer = Color(0xFFFFEBEE);
+  static const Color onStatusCritical = Color(0xFFB71C1C);
+
+  // Additional Semantic Container Tokens
+  static const Color secondaryContainer = Color(0xFFE8EAF6);
+  static const Color onSecondaryContainer = Color(0xFF26365C);
+  static const Color onPrimaryContainer = Color(0xFF8F4E00);
 
   // Offline Banner Strip Colors
   static const Color bannerOnline = Color(0xFF26365C); // Deep Navy strip when online

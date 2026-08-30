@@ -45,6 +45,14 @@ abstract class AppTypography {
     color: AppColors.textSecondary,
   );
 
+  static const TextStyle bodySm = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 12,
+    fontWeight: FontWeight.w400,
+    height: 1.4,
+    color: AppColors.textSecondary,
+  );
+
   static const TextStyle labelLg = TextStyle(
     fontFamily: fontFamily,
     fontSize: 14,
